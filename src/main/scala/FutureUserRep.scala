@@ -4,7 +4,7 @@ class FutureUserRep extends UserRepository[Future] {
   override def registerUser(username: String): Future[User] = {
     val user = User( Storage.userStorageById.size, username)
     Storage.userStorageById = Storage.userStorageById + (user.id -> user)
-    Storage.userStorageByName =Storage.userStorageByName + (user.username -> user)
+    Storage.userStorageByName = Storage.userStorageByName + (user.username -> user)
     Thread.sleep(1000)
     Future.successful{user}
   }
