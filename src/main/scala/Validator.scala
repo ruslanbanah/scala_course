@@ -2,7 +2,7 @@
   * Implement validator typeclass that should validate arbitrary value [T].
   * @tparam T the type of the value to be validated.
   */
-trait Validator[T] {
+trait Validator[T] { self =>
   /**
     * Validates the value.
     * @param value value to be validated.
@@ -17,15 +17,7 @@ trait Validator[T] {
     *         otherwise Left with error messages from both validators.
     */
   def and(other: Validator[T]): Validator[T] = (value: T) => {
-    val errors = Seq(
-      this.validate(value),
-      other.validate(value)
-    ).collect {
-      case Left(err) => err
-    }
-
-    if (errors.nonEmpty) Left(errors.mkString(", "))
-    else Right(value)
+    self.validate(value).flatMap(_ => other.validate(value))
   }
 
   /**
@@ -35,15 +27,20 @@ trait Validator[T] {
     *         otherwise Left with error messages from the failed validator or from both if both failed.
     */
   def or(other: Validator[T]): Validator[T] = (value: T) => {
-    val errors = Seq(
-      this.validate(value),
-      other.validate(value)
-    ).collect {
-      case Left(err) => err
+    self.validate(value) match {
+      case Left(err) => other.validate(value) match {
+        case Right(_) => Right(value)
+        case Left(e2) => Left(s"$err\n$e2")
+      }
+      case Right(_) => Right(value)
     }
 
-    if (errors.length > 1) Left(errors.mkString(", "))
-    else Right(value)
+    /**
+      * Different way
+      * self.validate(value).left.flatMap(e1 => other.validate(value).left.map(e2 => s"$e1\n$e2"))
+      *
+      */
+
   }
 }
 
