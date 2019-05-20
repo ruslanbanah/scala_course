@@ -45,8 +45,8 @@ class UserService[F[_]](repository: UserRepository[F])
     })
   }
 
-  def getByUsername(username: String): F[Option[String]] = ???
-  def getById(id: Long): F[Option[String]] = ???
+  def getByUsername(username: String): F[Option[User]] = repository.getByUsername(username)
+  def getById(id: Long): F[Option[User]] = repository.getById(id)
 }
 
 class IotDeviceService[F[_]](repository: IotDeviceRepository[F],
@@ -54,7 +54,19 @@ class IotDeviceService[F[_]](repository: IotDeviceRepository[F],
                             (implicit monad: Monad[F]) {
 
   // the register should fail with Left if the user doesn't exist or the sn already exists.
-  def registerDevice(userId: Long, sn: String): F[Either[String, User]] = ???
+  def registerDevice(userId: Long, sn: String): F[Either[String, IotDevice]] = {
+    userRepository.getById(userId).flatMap({
+      case Some(user) =>
+        repository.getBySn(sn).flatMap({
+          case Some(device) =>
+            monad.pure(Left(s"Device $sn already exists"))
+          case None =>
+            repository.registerDevice(userId, sn).map(Right(_))
+        })
+      case None =>
+        monad.pure(Left(s"User $userId not found"))
+    })
+  }
 }
 
 // task1: implement in-memory Respository with Id monad.
