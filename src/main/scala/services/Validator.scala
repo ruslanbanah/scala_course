@@ -71,11 +71,8 @@ object Validator {
   }
 
   val isPersonValid = new Validator[User] {
-    // implement me
-    // Returns valid only when the name is not empty and age is in range [1-99].
     override def validate(value: User): Either[String, User] = {
-//      value.username validate (nonEmpty and strLessThan(3))
-      if (!value.username.isEmpty && !value.address.isEmpty) Right(value) else Left("Invalid values")
+      if (!value.username.isEmpty && !value.address.isEmpty ) Right(value) else Left("Invalid values")
     }
 
   }

@@ -32,7 +32,11 @@ class UserRoute(userService: UserService[Future])(implicit ex: ExecutionContext)
     } ~ post {
       entity(as[User]) { u =>
         complete {
-          userService.registerUser(u.username, u.address, u.email)
+          u.username validate (nonEmpty and strLessThan(3)) match {
+            case Left(value) => value
+            case Right(_) => userService.registerUser(u.username, u.address, u.email)
+          }
+
         }
       }
     }

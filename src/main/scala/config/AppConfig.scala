@@ -24,8 +24,8 @@ class AppConfig {
     val port: Int = config.getInt("http.port")
   }
 
-  def databaseConfig(dbName: String): DatabaseConfig = new DatabaseConfig {
-    private val databaseConfig = config.getConfig(s"db.${dbName}.db")
+  val databaseConfig: DatabaseConfig = new DatabaseConfig {
+    private val databaseConfig = config.getConfig(s"db.postgre.db")
 
     lazy val port: Int = databaseConfig.getInt("port")
     lazy val databaseName: String = databaseConfig.getString("databaseName")

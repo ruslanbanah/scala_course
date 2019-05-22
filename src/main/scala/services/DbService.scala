@@ -8,7 +8,7 @@ import scala.util.Try
 /**
   * Database migration
   */
-class FlywayService(dbConfig: DatabaseConfig) {
+class DbService(dbConfig: DatabaseConfig) {
 
   private[this] val flyway = new Flyway()
   flyway.setDataSource(dbConfig.jdbcUrl, dbConfig.user, dbConfig.password)
